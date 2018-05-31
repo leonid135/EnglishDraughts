@@ -1,6 +1,6 @@
 package task3.Logic;
 
-public enum  Turns {
+public enum Turns {
     LEFT,
     RIGHT,
     BACKLEFT,
