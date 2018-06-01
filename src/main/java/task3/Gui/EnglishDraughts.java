@@ -25,8 +25,8 @@ public class EnglishDraughts extends Application {
     private Pane statusPane;
     private Label gameStatus;
 
-    private int selectedDX = -1;
-    private int selectedDY = -1;
+    private int selectedX = -1;
+    private int selectedY = -1;
     private int selectedValue = 0;
 
     private int turn = -1;
@@ -72,7 +72,6 @@ public class EnglishDraughts extends Application {
         Menu menuHelp = new Menu("Help");
 
         menuBar.getMenus().addAll(menuGame, menuHelp);
-
     }
 
     private void onExit() {
@@ -82,7 +81,7 @@ public class EnglishDraughts extends Application {
     private void onNewGame() {
         game = new Game();
         turn = -1;
-        gameStatus.setText("red move");
+        gameStatus.setText("Move the red");
         fieldUpdate();
     }
 
@@ -91,8 +90,8 @@ public class EnglishDraughts extends Application {
             for (int x = 0; x < game.getFieldSize(); x++) {
                 //доска
                 Rectangle cell = new Rectangle(80, 80);
-                final int finalX = x;
-                final int finalY = y;
+                int finalX = x;
+                int finalY = y;
                 if ((x + y) % 2 == 0) {
                     cell.setFill(Color.BLACK);
                 } else {
@@ -105,13 +104,13 @@ public class EnglishDraughts extends Application {
                 //шашки
 
                 Circle checker = new Circle(30);
-                checker.setStroke(Color.color(0, 0, 0, 0));
+                checker.setStroke(Color.color(0,0,0,0));
                 checker.setStrokeWidth(20);
-                if (x == selectedDX && y == selectedDY) {
+                if (x == selectedX && y == selectedY) {
                     checker.setFill(Color.GREEN);
-                } else if (game.getChekerAt(x, y) == 1) {
+                } else if (game.getCheckerAt(x, y) > 0) {
                     checker.setFill(Color.WHITE);
-                } else if (game.getChekerAt(x, y) == -1) {
+                } else if (game.getCheckerAt(x, y) < 0){
                     checker.setFill(Color.RED);
                 } else {
                     checker.setOpacity(0);
@@ -119,48 +118,69 @@ public class EnglishDraughts extends Application {
                 }
                 checker.setOnMouseClicked(event -> selectChecker(finalX, finalY));
                 field.add(checker, x, y);
+
+                if (Math.abs(game.getCheckerAt(x, y)) == 2){
+                    Circle king = new Circle(20);
+                    king.setStroke(Color.color(0,0,0,0));
+                    king.setStrokeWidth(40);
+                    king.setFill(Color.color(0,0,0,0.3));
+                    king.setOnMouseClicked(event -> selectChecker(finalX, finalY));
+                    field.add(king, x, y);
+                }
             }
         }
+
     }
 
-
     private void selectChecker(int x, int y) {
-        if (game.getChekerAt(x, y) == turn) {
-            selectedDX = x;
-            selectedDY = y;
-            selectedValue = game.getChekerAt(x, y);
+        if (game.getCheckerAt(x, y) != 0 &&  game.getCheckerAt(x, y) > 0 == turn > 0) {
+            selectedX = x;
+            selectedY = y;
+            selectedValue = game.getCheckerAt(x, y);
             fieldUpdate();
         }
 
     }
 
     private void moveCheckerTo(int x, int y) {
-        if (selectedDX != -1 && selectedDY != -1 && game.getChekerAt(x, y) == 0) {
+        if (selectedX != -1 && selectedY != -1 && game.getCheckerAt(x, y) == 0) {
+            boolean success = false;
             if (selectedValue > 0) {
-                if (x > selectedDX && y < selectedDY) {
-                    game.makeTurn(selectedDX, selectedDY, Turns.RIGHT);
-                } else if (x < selectedDX && y < selectedDY) {
-                    game.makeTurn(selectedDX, selectedDY, Turns.LEFT);
+                if (x > selectedX && y < selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.RIGHT);
+                } else if (x < selectedX && y < selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.LEFT);
+                } else if (selectedValue == 2 && x > selectedX && y > selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.BACKRIGHT);
+                } else if (selectedValue == 2 && x < selectedX && y > selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.BACKLEFT);
                 }
             } else if (selectedValue < 0) {
-                if (x < selectedDX && y > selectedDY) {
-                    game.makeTurn(selectedDX, selectedDY, Turns.RIGHT);
-
-                } else if (x > selectedDX && y > selectedDY) {
-                    game.makeTurn(selectedDX, selectedDY, Turns.LEFT);
+                if (x < selectedX && y > selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.RIGHT);
+                } else if (x > selectedX && y > selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.LEFT);
+                } else if (selectedValue == -2 && x < selectedX && y < selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.BACKRIGHT);
+                } else if (selectedValue == -2 && x > selectedX && y < selectedY) {
+                    success = game.makeTurn(selectedX, selectedY, Turns.BACKLEFT);
                 }
             }
-            turn *= -1;
-            if (turn == 1) {
-                gameStatus.setText("white move");
 
-            } else {
-                gameStatus.setText("red move");
+            if (success) {
+                turn *= -1;
+
+                if (turn == 1) {
+                    gameStatus.setText("Move the white");
+                } else {
+                    gameStatus.setText("Move the red");
+                }
             }
 
         }
-        selectedDX = -1;
-        selectedDY = -1;
+
+        selectedX = -1;
+        selectedY = -1;
         selectedValue = 0;
         fieldUpdate();
 

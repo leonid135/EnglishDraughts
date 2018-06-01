@@ -34,6 +34,6 @@ public class GameTests {
 
         game.makeTurn(2, 5, Turns.LEFT);
 
-        assertEquals(-2, game.getChekerAt(4, 7));
+        assertEquals(-2, game.getCheckerAt(4, 7));
     }
 }
