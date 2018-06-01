@@ -36,4 +36,5 @@ public class GameTests {
 
         assertEquals(-2, game.getCheckerAt(4, 7));
     }
+
 }

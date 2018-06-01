@@ -310,5 +310,4 @@ public class Game {
         game.makeTurn(1, 2, Turns.RIGHT);
         System.out.println(game.toString());
     }
-
 }
